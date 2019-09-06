@@ -203,7 +203,9 @@ func (h *handler) isV2(filePath string) (bool, error) {
 	if config.DirPath == "" {
 		return false, nil
 	}
-	return strings.ToLower(config.Lint.Group) == "uber2", nil
+
+	group := strings.ToLower(config.Lint.Group)
+	return group == "uber2" || group == "lixin", nil
 }
 
 func (h *handler) getFileHeader(filePath string) (string, error) {
