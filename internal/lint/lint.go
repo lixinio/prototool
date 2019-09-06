@@ -27,6 +27,7 @@ import (
 	"path/filepath"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/emicklei/proto"
 	"github.com/uber/prototool/internal/file"
@@ -265,6 +266,79 @@ var (
 		wktTimestampSuffixLinter,
 	}
 
+	// LixinLinters is the slice of linters for the lixin lint group.
+	LixinLinters = []Linter{
+		commentsNoCStyleLinter,
+		commentsNoInlineLinter,
+		enumFieldNamesUpperSnakeCaseLinter,
+		enumFieldPrefixesExceptMessageLinter,
+		enumNamesCamelCaseLinter,
+		enumNamesCapitalizedLinter,
+		enumZeroValuesUnspecifiedExceptMessageLinter,
+		enumsHaveSentenceCommentsLinter,
+		enumsNoAllowAliasLinter,
+		fieldsNotReservedLinter,
+		fileHeaderLinter,
+		fileNamesLowerSnakeCaseLinter,
+		fileOptionsCSharpNamespaceSameInDirLinter,
+		fileOptionsEqualCSharpNamespaceCapitalizedLinter,
+		fileOptionsEqualGoPackageV2SuffixLinter,
+		fileOptionsEqualJavaMultipleFilesTrueLinter,
+		fileOptionsEqualJavaOuterClassnameProtoSuffixLinter,
+		fileOptionsEqualJavaPackagePrefixLinter,
+		fileOptionsEqualOBJCClassPrefixAbbrLinter,
+		fileOptionsEqualPHPNamespaceCapitalizedLinter,
+		fileOptionsGoPackageNotLongFormLinter,
+		fileOptionsGoPackageSameInDirLinter,
+		fileOptionsJavaMultipleFilesSameInDirLinter,
+		fileOptionsJavaPackageSameInDirLinter,
+		fileOptionsOBJCClassPrefixSameInDirLinter,
+		fileOptionsPHPNamespaceSameInDirLinter,
+		fileOptionsRequireCSharpNamespaceLinter,
+		fileOptionsRequireGoPackageLinter,
+		fileOptionsRequireJavaMultipleFilesLinter,
+		fileOptionsRequireJavaOuterClassnameLinter,
+		fileOptionsRequireJavaPackageLinter,
+		fileOptionsRequireOBJCClassPrefixLinter,
+		fileOptionsRequirePHPNamespaceLinter,
+		importsNotPublicLinter,
+		importsNotWeakLinter,
+		messagesHaveSentenceCommentsExceptRequestResponseTypesLinter,
+		messageFieldNamesFilenameLinter,
+		messageFieldNamesFilepathLinter,
+		messageFieldNamesLowerSnakeCaseLinter,
+		messageFieldNamesNoDescriptorLinter,
+		messageFieldsNoJSONNameLinter,
+		messageNamesCamelCaseLinter,
+		messageNamesCapitalizedLinter,
+		namesNoCommonLinter,
+		namesNoDataLinter,
+		namesNoUUIDLinter,
+		oneofNamesLowerSnakeCaseLinter,
+		packageIsDeclaredLinter,
+		packageLowerCaseLinter,
+		packageMajorBetaVersionedLinter,
+		packageNoKeywordsLinter,
+		packagesSameInDirLinter,
+		rpcsHaveSentenceCommentsLinter,
+		rpcNamesCamelCaseLinter,
+		rpcNamesCapitalizedLinter,
+		requestResponseNamesMatchRPCLinter,
+		requestResponseTypesAfterServiceLinter,
+		requestResponseTypesInSameFileLinter,
+		requestResponseTypesOnlyInFileLinter,
+		requestResponseTypesUniqueLinter,
+		servicesHaveSentenceCommentsLinter,
+		serviceNamesAPISuffixLinter,
+		serviceNamesCamelCaseLinter,
+		serviceNamesCapitalizedLinter,
+		serviceNamesMatchFileNameLinter,
+		syntaxProto3Linter,
+		wktDirectlyImportedLinter,
+		wktDurationSuffixLinter,
+		wktTimestampSuffixLinter,
+	}
+
 	// EmptyLinters is the slice of linters for the empty lint group.
 	EmptyLinters = []Linter{}
 
@@ -273,6 +347,7 @@ var (
 		"google": GoogleLinters,
 		"uber1":  Uber1Linters,
 		"uber2":  Uber2Linters,
+		"lixin":  LixinLinters,
 		"empty":  EmptyLinters,
 	}
 
@@ -546,7 +621,9 @@ func commentStartsWithUppercaseLetter(comment *proto.Comment) bool {
 	if firstLine == "" {
 		return false
 	}
-	return unicode.IsUpper(rune(firstLine[0])) || unicode.IsDigit(rune(firstLine[0]))
+
+	firstRune, _ := utf8.DecodeRuneInString(firstLine)
+	return unicode.Is(unicode.Han, firstRune) || unicode.IsUpper(firstRune) || unicode.IsDigit(firstRune)
 }
 
 func commentContainsPeriod(comment *proto.Comment) bool {
