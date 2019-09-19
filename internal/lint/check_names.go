@@ -175,6 +175,10 @@ func (v *namesVisitor) VisitExtensions(element *proto.Extensions) {
 }
 
 func (v *namesVisitor) checkName(position scanner.Position, name string, comment *proto.Comment) {
+	if v.outlawedName == "data" && strings.Contains(strings.ToLower(name), "metadata") {
+		return
+	}
+
 	if strings.Contains(strings.ToLower(name), v.outlawedName) {
 		v.AddFailuref(comment, position, `The name %q contains the outlawed name %q. %s.`, name, v.outlawedName, v.additionalHelp)
 	}
